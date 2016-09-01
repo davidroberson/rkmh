@@ -1,0 +1,114 @@
+
+```{r include = FALSE}
+require(rmarkdown); require(knitr); require(sevenbridges); require(readr)
+
+options(max.print = "99"); opts_knit$set(width = 99)
+opts_chunk$set(cache=FALSE, tidy=FALSE)
+
+source("~/sbg_auth.R")
+
+```
+
+<hr>
+
+https://github.com/edawson/rkmh
+
+## base command
+
+```{sh base command, eval=FALSE}
+
+rkmh -r ref_genomes.txt -f ref_genomes.txt
+
+
+```
+
+## docker 
+
+``` erictdawson/rkmh:latest ```
+
+
+## App ports {.tabset .tabset-fade .tabset-tabs}
+
+### Inputs
+
+```{r inputs, eval=run.mode=="push"}
+
+inputs = list(
+  
+input(id = "reference", label = "reference", description = "reference", type = "File", prefix = "-r"),
+  
+input(id = "fastq", label = "fastq", description = "fastq", type = "File", prefix = "-f"),
+  
+input(id = "kmer_size", label = "kmer size", description = "the kmer size to use for hashing", type = "int", prefix = "-k")
+
+)
+
+```
+
+
+## arguments
+
+```{r arguments, eval=run.mode=="push"}
+
+arguments = arguments = CCBList(CommandLineBinding(position = 99, valueFrom = list("\"&& ls -lR\"")))
+
+```
+
+
+### Outputs
+
+```{r output, eval = run.mode=="push"}
+
+outputs = list(
+
+output(id = "std_out", label = "std_out", 
+description = "standard output", type = "File...",
+metadata = list(org = "cgp"),
+glob = "\"std.out\"")
+  
+)
+
+
+```
+
+## Define Tool Object and Push to Platform {.tabset .tabset-fade .tabset-tabs}
+  
+### Tool object
+
+```{r 5 create tool object, eval=run.mode=="push"}
+
+tool <- Tool(
+id = "rkmh", 
+label = "rkmh",
+hints = requirements(docker(pull = "erictdawson/rkmh:latest"), cpu(1), mem(1000)),
+
+baseCommand = "rkmh classify",
+
+stdout = "std.out",
+
+inputs = inputs,
+  
+arguments = arguments,
+  
+outputs = outputs)
+
+
+```
+
+### Make cwl file
+
+```{r make cwl, eval=destination=="platform"}
+
+write(tool$toJSON(pretty = TRUE), "vcf2maf_cwl.json")
+
+```
+
+
+### Push app to sbg platform
+
+```{r 6 push app to sbg, eval=destination=="platform"}
+
+project$app_add("rkmh", tool)
+
+
+```
