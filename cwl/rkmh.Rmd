@@ -82,7 +82,7 @@ id = "rkmh",
 label = "rkmh",
 hints = requirements(docker(pull = "erictdawson/rkmh:latest"), cpu(1), mem(1000)),
 
-baseCommand = "rkmh classify",
+baseCommand = "classify",
 
 stdout = "std.out",
 
@@ -92,14 +92,13 @@ arguments = arguments,
   
 outputs = outputs)
 
-
 ```
 
 ### Make cwl file
 
 ```{r make cwl, eval=destination=="platform"}
 
-write(tool$toJSON(pretty = TRUE), "vcf2maf_cwl.json")
+write(tool$toJSON(pretty = TRUE), "rkmh_classify.json")
 
 ```
 
